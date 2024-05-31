@@ -2,8 +2,9 @@
 import React, { useEffect, useRef } from 'react';
 import { createChart, LineStyle } from 'lightweight-charts';
 
-const BasicCandle = ({ initialData, chartId, onCrosshairMove }) => {
+const BasicCandle = ({ initialData, chartId, onCrosshairMove, syncCrosshair }) => {
     const chartContainerRef = useRef();
+    const chartRef = useRef();
 
     useEffect(() => {
         const chart = createChart(chartContainerRef.current, {
@@ -30,6 +31,8 @@ const BasicCandle = ({ initialData, chartId, onCrosshairMove }) => {
                 },
             },
         });
+
+        chartRef.current = chart;
 
         const series = chart.addCandlestickSeries({
             wickUpColor: 'rgb(54, 116, 217)',
@@ -58,6 +61,12 @@ const BasicCandle = ({ initialData, chartId, onCrosshairMove }) => {
             window.removeEventListener("resize", handleResize);
         };
     }, [initialData, chartId, onCrosshairMove]);
+
+    useEffect(() => {
+        if (syncCrosshair && chartRef.current) {
+            chartRef.current.moveCrosshair(syncCrosshair);
+        }
+    }, [syncCrosshair]);
 
     return <div ref={chartContainerRef} />;
 };
