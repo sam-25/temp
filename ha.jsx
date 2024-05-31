@@ -82,8 +82,14 @@ const BasicCandle = () => {
         series2.setData(initialData);
 
         const syncCrosshair = (event, sourceChart, targetChart) => {
-            if (!event || !event.time) return;
-            targetChart.moveCrosshair(event.point);
+            if (event.point === undefined || event.point === null) {
+                targetChart.setCrossHairPosition(null);
+            } else {
+                targetChart.setCrossHairPosition({
+                    x: event.point.x,
+                    y: event.point.y,
+                });
+            }
         };
 
         chart1.subscribeCrosshairMove((event) => {
