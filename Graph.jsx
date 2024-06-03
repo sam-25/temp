@@ -15,8 +15,6 @@ const Graph = () => {
   useEffect(() => {
     const renderChart = async () => {
       const chartProperties = {
-        width: chartContainerRef.current.clientWidth,
-        height: chartContainerRef.current.clientHeight,
         layout: {
           backgroundColor: '#FFFFFF',
           textColor: '#000000',
@@ -38,7 +36,11 @@ const Graph = () => {
       const klinedata = await getData();
 
       // Main chart
-      const mainChart = createChart(chartContainerRef.current, chartProperties);
+      const mainChart = createChart(chartContainerRef.current, {
+        ...chartProperties,
+        width: chartContainerRef.current.clientWidth,
+        height: chartContainerRef.current.clientHeight,
+      });
       const candleseries = mainChart.addCandlestickSeries();
       candleseries.setData(klinedata);
 
@@ -64,6 +66,7 @@ const Graph = () => {
       // RSI chart
       const rsiChart = createChart(rsiContainerRef.current, {
         ...chartProperties,
+        width: rsiContainerRef.current.clientWidth,
         height: 200,
       });
       const rsi_series = rsiChart.addLineSeries({ color: 'purple', lineWidth: 1 });
@@ -73,6 +76,7 @@ const Graph = () => {
       // MACD chart
       const macdChart = createChart(macdContainerRef.current, {
         ...chartProperties,
+        width: macdContainerRef.current.clientWidth,
         height: 200,
       });
       const macd_fast_series = macdChart.addLineSeries({ color: 'blue', lineWidth: 1 });
@@ -91,17 +95,27 @@ const Graph = () => {
       }));
       macd_histogram_series.setData(macd_histogram_data);
 
-      // Synchronize crosshair and time scale between charts
-      const syncCrosshair = param => {
-        rsiChart.setCrosshair(param);
-        macdChart.setCrosshair(param);
-      };
-      const syncTimeScale = param => {
-        rsiChart.timeScale().applyOptions({ rightOffset: param });
-        macdChart.timeScale().applyOptions({ rightOffset: param });
+      // Synchronize crosshair between charts
+      const syncCrosshair = (param) => {
+        if (!param || !param.time) return;
+        const mainCrosshair = mainChart.crosshairSource().get();
+
+        rsiChart.crosshairSource().set(mainCrosshair);
+        macdChart.crosshairSource().set(mainCrosshair);
       };
 
       mainChart.subscribeCrosshairMove(syncCrosshair);
+      rsiChart.subscribeCrosshairMove(syncCrosshair);
+      macdChart.subscribeCrosshairMove(syncCrosshair);
+
+      // Synchronize time scale between charts
+      const syncTimeScale = () => {
+        const mainRange = mainChart.timeScale().getVisibleRange();
+
+        rsiChart.timeScale().setVisibleRange(mainRange);
+        macdChart.timeScale().setVisibleRange(mainRange);
+      };
+
       mainChart.timeScale().subscribeVisibleTimeRangeChange(syncTimeScale);
     };
 
