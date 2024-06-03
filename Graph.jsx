@@ -102,68 +102,36 @@ const Graph = () => {
       }));
       macd_histogram_series.setData(macd_histogram_data);
 
-      // Synchronize crosshair between charts
-      const synchronizeCrosshairs = (mainChart, rsiChart, macdChart) => {
-        const mainChartCrosshairMove = param => {
+      // Synchronize crosshair and time scale between charts
+      const synchronizeCharts = (mainChart, rsiChart, macdChart) => {
+        const crosshairMoveHandler = (param) => {
           if (!param || !param.time) return;
 
-          rsiChart.setCrossHairXY(param.time, param.point.x);
-          macdChart.setCrossHairXY(param.time, param.point.x);
+          rsiChart.timeScale().applyOptions({ rightOffset: mainChart.timeScale().rightOffset() });
+          macdChart.timeScale().applyOptions({ rightOffset: mainChart.timeScale().rightOffset() });
+          rsiChart.moveCrosshair(param);
+          macdChart.moveCrosshair(param);
         };
 
-        const rsiChartCrosshairMove = param => {
-          if (!param || !param.time) return;
-
-          mainChart.setCrossHairXY(param.time, param.point.x);
-          macdChart.setCrossHairXY(param.time, param.point.x);
+        const timeScaleChangeHandler = () => {
+          const mainRange = mainChart.timeScale().getVisibleRange();
+          if (mainRange) {
+            rsiChart.timeScale().setVisibleRange(mainRange);
+            macdChart.timeScale().setVisibleRange(mainRange);
+          }
         };
 
-        const macdChartCrosshairMove = param => {
-          if (!param || !param.time) return;
+        mainChart.subscribeCrosshairMove(crosshairMoveHandler);
+        mainChart.timeScale().subscribeVisibleTimeRangeChange(timeScaleChangeHandler);
 
-          mainChart.setCrossHairXY(param.time, param.point.x);
-          rsiChart.setCrossHairXY(param.time, param.point.x);
-        };
+        rsiChart.subscribeCrosshairMove(crosshairMoveHandler);
+        rsiChart.timeScale().subscribeVisibleTimeRangeChange(timeScaleChangeHandler);
 
-        mainChart.subscribeCrosshairMove(mainChartCrosshairMove);
-        rsiChart.subscribeCrosshairMove(rsiChartCrosshairMove);
-        macdChart.subscribeCrosshairMove(macdChartCrosshairMove);
+        macdChart.subscribeCrosshairMove(crosshairMoveHandler);
+        macdChart.timeScale().subscribeVisibleTimeRangeChange(timeScaleChangeHandler);
       };
 
-      synchronizeCrosshairs(mainChart, rsiChart, macdChart);
-
-      // Synchronize time scale between charts
-      const synchronizeTimeScales = (mainChart, rsiChart, macdChart) => {
-        const mainChartTimeScaleChange = () => {
-          const visibleRange = mainChart.timeScale().getVisibleRange();
-          if (visibleRange) {
-            rsiChart.timeScale().setVisibleRange(visibleRange);
-            macdChart.timeScale().setVisibleRange(visibleRange);
-          }
-        };
-
-        const rsiChartTimeScaleChange = () => {
-          const visibleRange = rsiChart.timeScale().getVisibleRange();
-          if (visibleRange) {
-            mainChart.timeScale().setVisibleRange(visibleRange);
-            macdChart.timeScale().setVisibleRange(visibleRange);
-          }
-        };
-
-        const macdChartTimeScaleChange = () => {
-          const visibleRange = macdChart.timeScale().getVisibleRange();
-          if (visibleRange) {
-            mainChart.timeScale().setVisibleRange(visibleRange);
-            rsiChart.timeScale().setVisibleRange(visibleRange);
-          }
-        };
-
-        mainChart.timeScale().subscribeVisibleTimeRangeChange(mainChartTimeScaleChange);
-        rsiChart.timeScale().subscribeVisibleTimeRangeChange(rsiChartTimeScaleChange);
-        macdChart.timeScale().subscribeVisibleTimeRangeChange(macdChartTimeScaleChange);
-      };
-
-      synchronizeTimeScales(mainChart, rsiChart, macdChart);
+      synchronizeCharts(mainChart, rsiChart, macdChart);
     };
 
     renderChart();
