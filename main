@@ -1,0 +1,570 @@
+// src/components/SearchBar.js
+import React, { useState } from 'react';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+
+const SearchBar = ({ onSearch }) => {
+  const [query, setQuery] = useState('');
+
+  const handleSearch = () => {
+    onSearch(query);
+  };
+
+  return (
+    <div style={{ display: 'flex', marginBottom: '20px' }}>
+      <TextField
+        label="Search"
+        variant="outlined"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        style={{ marginRight: '10px' }}
+      />
+      <Button variant="contained" color="primary" onClick={handleSearch}>
+        Search
+      </Button>
+    </div>
+  );
+};
+
+export default SearchBar;
+
+
+
+// src/components/Graph.js
+import React from 'react';
+import {
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend
+} from 'recharts';
+
+const Graph = ({ data }) => {
+  return (
+    <LineChart
+      width={600}
+      height={300}
+      data={data}
+      margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
+    >
+      <CartesianGrid strokeDasharray="3 3" />
+      <XAxis dataKey="date" />
+      <YAxis />
+      <Tooltip />
+      <Legend />
+      <Line type="monotone" dataKey="price" stroke="#8884d8" activeDot={{ r: 8 }} />
+    </LineChart>
+  );
+};
+
+export default Graph;
+
+
+
+// src/components/Watchlist.js
+import React from 'react';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+
+const Watchlist = ({ watchlist, removeItem }) => {
+  return (
+    <List>
+      {watchlist.map((item, index) => (
+        <ListItem button key={index} onClick={() => removeItem(item)}>
+          <ListItemText primary={item} />
+        </ListItem>
+      ))}
+    </List>
+  );
+};
+
+export default Watchlist;
+
+
+// server/server.js
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",  // Replace with your React app URL
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('search', (query) => {
+    // Fetch data based on query and emit it to the client
+    const data = fetchDataBasedOnQuery(query);  // Implement this function
+    socket.emit('data', data);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
+const fetchDataBasedOnQuery = (query) => {
+  // Simulate fetching data based on the query
+  return [
+    { date: '2024-01-01', price: 100 },
+    { date: '2024-01-02', price: 110 },
+    { date: '2024-01-03', price: 105 }
+  ];
+};
+
+const PORT = process.env.PORT || 4000;
+server.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
+
+// server/server.js
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
+const path = require('path');
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
+
+const suggestions = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew'];
+
+io.on('connection', (socket) => {
+  console.log('a user connected');
+
+  socket.on('search', (query) => {
+    const filteredSuggestions = suggestions.filter(suggestion =>
+      suggestion.toLowerCase().includes(query.toLowerCase())
+    );
+    socket.emit('suggestions', filteredSuggestions);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected');
+  });
+});
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, '../build')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../build', 'index.html'));
+});
+
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
+
+// src/SearchBar.js
+import React, { useState, useEffect } from 'react';
+import { io } from 'socket.io-client';
+import './SearchBar.css';
+
+const socket = io(); // Connect to the same origin
+
+const SearchBar = () => {
+  const [query, setQuery] = useState('');
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(0);
+
+  useEffect(() => {
+    socket.on('suggestions', (suggestions) => {
+      setFilteredSuggestions(suggestions);
+      setShowSuggestions(true);
+    });
+
+    return () => {
+      socket.off('suggestions');
+    };
+  }, []);
+
+  const handleChange = (e) => {
+    const userInput = e.target.value;
+    setQuery(userInput);
+
+    if (userInput) {
+      socket.emit('search', userInput);
+    } else {
+      setFilteredSuggestions([]);
+      setShowSuggestions(false);
+    }
+  };
+
+  const handleClick = (e) => {
+    setQuery(e.currentTarget.innerText);
+    setFilteredSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      setQuery(filteredSuggestions[activeSuggestion]);
+      setFilteredSuggestions([]);
+      setShowSuggestions(false);
+    } else if (e.key === 'ArrowUp') {
+      if (activeSuggestion === 0) {
+        return;
+      }
+      setActiveSuggestion(activeSuggestion - 1);
+    } else if (e.key === 'ArrowDown') {
+      if (activeSuggestion - 1 === filteredSuggestions.length) {
+        return;
+      }
+      setActiveSuggestion(activeSuggestion + 1);
+    }
+  };
+
+  const renderSuggestions = () => {
+    if (showSuggestions && query) {
+      if (filteredSuggestions.length) {
+        return (
+          <ul className="suggestions">
+            {filteredSuggestions.map((suggestion, index) => {
+              let className;
+              if (index === activeSuggestion) {
+                className = "suggestion-active";
+              }
+              return (
+                <li className={className} key={suggestion} onClick={handleClick}>
+                  {suggestion}
+                </li>
+              );
+            })}
+          </ul>
+        );
+      } else {
+        return (
+          <div className="no-suggestions">
+            <em>No suggestions, you're on your own!</em>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        value={query}
+      />
+      {renderSuggestions()}
+    </div>
+  );
+};
+
+export default SearchBar;
+
+/* SearchBar.css */
+.suggestions {
+  border: 1px solid #ccc;
+  border-top-width: 0;
+  list-style: none;
+  margin-top: 0;
+  max-height: 150px;
+  overflow-y: auto;
+  padding-left: 0;
+  width: 100%;
+}
+
+.suggestion-active,
+.suggestions li:hover {
+  background-color: #d4d4d4;
+  cursor: pointer;
+}
+
+.suggestions li {
+  padding: 10px;
+}
+
+.no-suggestions {
+  color: #999;
+  padding: 10px;
+}
+
+// src/SearchBar.js
+import React, { useState } from 'react';
+import './SearchBar.css';
+
+const SearchBar = () => {
+  const suggestions = ['Apple', 'Banana', 'Cherry', 'Date', 'Elderberry', 'Fig', 'Grape', 'Honeydew'];
+  
+  const [query, setQuery] = useState('');
+  const [filteredSuggestions, setFilteredSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [activeSuggestion, setActiveSuggestion] = useState(0);
+
+  const handleChange = (e) => {
+    const userInput = e.target.value;
+    setQuery(userInput);
+
+    const filtered = suggestions.filter(suggestion =>
+      suggestion.toLowerCase().includes(userInput.toLowerCase())
+    );
+
+    setFilteredSuggestions(filtered);
+    setShowSuggestions(true);
+    setActiveSuggestion(0);
+  };
+
+  const handleClick = (e) => {
+    setQuery(e.currentTarget.innerText);
+    setFilteredSuggestions([]);
+    setShowSuggestions(false);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      setQuery(filteredSuggestions[activeSuggestion]);
+      setFilteredSuggestions([]);
+      setShowSuggestions(false);
+    } else if (e.key === 'ArrowUp') {
+      if (activeSuggestion === 0) {
+        return;
+      }
+      setActiveSuggestion(activeSuggestion - 1);
+    } else if (e.key === 'ArrowDown') {
+      if (activeSuggestion === filteredSuggestions.length - 1) {
+        return;
+      }
+      setActiveSuggestion(activeSuggestion + 1);
+    }
+  };
+
+  const renderSuggestions = () => {
+    if (showSuggestions && query) {
+      if (filteredSuggestions.length) {
+        return (
+          <ul className="suggestions">
+            {filteredSuggestions.map((suggestion, index) => {
+              let className;
+              if (index === activeSuggestion) {
+                className = "suggestion-active";
+              }
+              return (
+                <li className={className} key={suggestion} onClick={handleClick}>
+                  {suggestion}
+                </li>
+              );
+            })}
+          </ul>
+        );
+      } else {
+        return (
+          <div className="no-suggestions">
+            <em>No suggestions, you're on your own!</em>
+          </div>
+        );
+      }
+    }
+    return null;
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        onChange={handleChange}
+        onKeyDown={handleKeyDown}
+        value={query}
+      />
+      {renderSuggestions()}
+    </div>
+  );
+};
+
+export default SearchBar;
+// src/Footer.js
+import React from 'react';
+import './Footer.css';
+
+const Footer = () => {
+  return (
+    <footer className="footer">
+      <div className="footer-content">
+        <div className="footer-section about">
+          <h3>About Us</h3>
+          <p>
+            We are a team of developers making responsive web designs easier.
+          </p>
+        </div>
+        <div className="footer-section links">
+          <h3>Useful Links</h3>
+          <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#about">About</a></li>
+          </ul>
+        </div>
+        <div className="footer-section contact">
+          <h3>Contact Us</h3>
+          <p>Email: support@example.com</p>
+          <p>Phone: (123) 456-7890</p>
+        </div>
+      </div>
+      <div className="footer-bottom">
+        &copy; 2024 Your Company | All Rights Reserved
+      </div>
+    </footer>
+  );
+};
+
+export default Footer;
+
+/* src/Footer.css */
+
+.footer {
+  background-color: #333;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+}
+
+.footer-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.footer-section {
+  margin: 20px 0;
+}
+
+.footer-section h3 {
+  margin-bottom: 10px;
+}
+
+.footer-section p, .footer-section ul {
+  margin: 0;
+  padding: 0;
+}
+
+.footer-section ul {
+  list-style: none;
+}
+
+.footer-section ul li {
+  margin: 5px 0;
+}
+
+.footer-section ul li a {
+  color: white;
+  text-decoration: none;
+}
+
+.footer-section ul li a:hover {
+  text-decoration: underline;
+}
+
+.footer-bottom {
+  margin-top: 20px;
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  .footer-content {
+    flex-direction: row;
+    justify-content: space-around;
+  }
+
+  .footer-section {
+    flex: 1;
+    padding: 0 20px;
+  }
+}
+
+import React from 'react';
+
+const HtmlLink = () => {
+  return (
+    <a href="/your-file.html" target="_blank" rel="noopener noreferrer">
+      Open HTML File
+    </a>
+  );
+};
+
+export default HtmlLink;
+
+import React from 'react';
+
+const HtmlViewer = () => {
+  return (
+    <iframe
+      src="/your-file.html"
+      title="Your HTML File"
+      style={{ width: '100%', height: '500px', border: 'none' }}
+    />
+  );
+};
+
+export default HtmlViewer;// App.js
+import React from 'react';
+import HtmlViewer from './HtmlViewer';
+import HtmlLink from './HtmlLink';
+
+function App() {
+  return (
+    <div className="App">
+      <h1>Include HTML File in React</h1>
+      <HtmlViewer />
+      <HtmlLink />
+    </div>
+  );
+}
+
+export default App;
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load historical stock data
+# For this example, we'll create a sample DataFrame. Replace it with your actual data.
+data = {
+    'Date': pd.date_range(start='1/1/2022', periods=100),
+    'Open': [i + (i**0.5) * 0.5 for i in range(100)],
+    'High': [i + (i**0.5) * 1.5 for i in range(100)],
+    'Low': [i - (i**0.5) * 0.5 for i in range(100)],
+    'Close': [i + (i**0.5) * 0.5 for i in range(100)]
+}
+df = pd.DataFrame(data)
+df.set_index('Date', inplace=True)
+
+# Identify Inverted Hammer pattern
+def is_inverted_hammer(row):
+    body_length = abs(row['Open'] - row['Close'])
+    upper_shadow = row['High'] - max(row['Open'], row['Close'])
+    lower_shadow = min(row['Open'], row['Close']) - row['Low']
+    
+    is_inverted_hammer = (
+        body_length < upper_shadow * 0.5 and  # Small real body
+        upper_shadow > 2 * body_length and   # Long upper shadow
+        lower_shadow < body_length * 0.1 and # Little to no lower shadow
+        row['Close'] > row['Open']           # Close is above open (optional for bullish indication)
+    )
+    return is_inverted_hammer
+
+df['Inverted_Hammer'] = df.apply(is_inverted_hammer, axis=1)
+
+# Plot the stock data with Inverted Hammer pattern highlighted
+plt.figure(figsize=(14, 7))
+plt.plot(df.index, df['Close'], label='Close Price')
+
+# Highlight the Inverted Hammer patterns
+inverted_hammers = df[df['Inverted_Hammer']]
+plt.scatter(inverted_hammers.index, inverted_hammers['Close'], color='red', label='Inverted Hammer', marker='^', alpha=1)
+
+plt.legend()
+plt.title('Inverted Hammer Candlestick Pattern')
+plt.xlabel('Date')
+plt.ylabel('Price')
+plt.show()
+
