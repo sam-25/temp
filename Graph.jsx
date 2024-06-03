@@ -7,9 +7,15 @@ const Graph = () => {
   const macdContainerRef = useRef(null);
 
   const getData = async () => {
-    const resp = await fetch('http://127.0.0.1:3000/BTCUSDT/1m');
-    const data = await resp.json();
-    return data;
+    try {
+      const resp = await fetch('http://127.0.0.1:3000/BTCUSDT/1m');
+      if (!resp.ok) throw new Error('Network response was not ok');
+      const data = await resp.json();
+      return data;
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      return [];
+    }
   };
 
   useEffect(() => {
@@ -34,6 +40,7 @@ const Graph = () => {
       };
 
       const klinedata = await getData();
+      if (!klinedata.length) return;
 
       // Main chart
       const mainChart = createChart(chartContainerRef.current, {
@@ -96,27 +103,67 @@ const Graph = () => {
       macd_histogram_series.setData(macd_histogram_data);
 
       // Synchronize crosshair between charts
-      const syncCrosshair = (param) => {
-        if (!param || !param.time) return;
-        const mainCrosshair = mainChart.crosshairSource().get();
+      const synchronizeCrosshairs = (mainChart, rsiChart, macdChart) => {
+        const mainChartCrosshairMove = param => {
+          if (!param || !param.time) return;
 
-        rsiChart.crosshairSource().set(mainCrosshair);
-        macdChart.crosshairSource().set(mainCrosshair);
+          rsiChart.setCrossHairXY(param.time, param.point.x);
+          macdChart.setCrossHairXY(param.time, param.point.x);
+        };
+
+        const rsiChartCrosshairMove = param => {
+          if (!param || !param.time) return;
+
+          mainChart.setCrossHairXY(param.time, param.point.x);
+          macdChart.setCrossHairXY(param.time, param.point.x);
+        };
+
+        const macdChartCrosshairMove = param => {
+          if (!param || !param.time) return;
+
+          mainChart.setCrossHairXY(param.time, param.point.x);
+          rsiChart.setCrossHairXY(param.time, param.point.x);
+        };
+
+        mainChart.subscribeCrosshairMove(mainChartCrosshairMove);
+        rsiChart.subscribeCrosshairMove(rsiChartCrosshairMove);
+        macdChart.subscribeCrosshairMove(macdChartCrosshairMove);
       };
 
-      mainChart.subscribeCrosshairMove(syncCrosshair);
-      rsiChart.subscribeCrosshairMove(syncCrosshair);
-      macdChart.subscribeCrosshairMove(syncCrosshair);
+      synchronizeCrosshairs(mainChart, rsiChart, macdChart);
 
       // Synchronize time scale between charts
-      const syncTimeScale = () => {
-        const mainRange = mainChart.timeScale().getVisibleRange();
+      const synchronizeTimeScales = (mainChart, rsiChart, macdChart) => {
+        const mainChartTimeScaleChange = () => {
+          const visibleRange = mainChart.timeScale().getVisibleRange();
+          if (visibleRange) {
+            rsiChart.timeScale().setVisibleRange(visibleRange);
+            macdChart.timeScale().setVisibleRange(visibleRange);
+          }
+        };
 
-        rsiChart.timeScale().setVisibleRange(mainRange);
-        macdChart.timeScale().setVisibleRange(mainRange);
+        const rsiChartTimeScaleChange = () => {
+          const visibleRange = rsiChart.timeScale().getVisibleRange();
+          if (visibleRange) {
+            mainChart.timeScale().setVisibleRange(visibleRange);
+            macdChart.timeScale().setVisibleRange(visibleRange);
+          }
+        };
+
+        const macdChartTimeScaleChange = () => {
+          const visibleRange = macdChart.timeScale().getVisibleRange();
+          if (visibleRange) {
+            mainChart.timeScale().setVisibleRange(visibleRange);
+            rsiChart.timeScale().setVisibleRange(visibleRange);
+          }
+        };
+
+        mainChart.timeScale().subscribeVisibleTimeRangeChange(mainChartTimeScaleChange);
+        rsiChart.timeScale().subscribeVisibleTimeRangeChange(rsiChartTimeScaleChange);
+        macdChart.timeScale().subscribeVisibleTimeRangeChange(macdChartTimeScaleChange);
       };
 
-      mainChart.timeScale().subscribeVisibleTimeRangeChange(syncTimeScale);
+      synchronizeTimeScales(mainChart, rsiChart, macdChart);
     };
 
     renderChart();
