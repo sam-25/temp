@@ -38,10 +38,8 @@ const ApexChart = () => {
 
   const [options] = useState({
     chart: {
-      type: 'candlestick',
-      height: 350,
-      id: 'candle',
-      group: 'social'
+      type: 'line',
+      height: 350
     },
     title: {
       text: 'Candlestick Chart with Line Data',
@@ -50,35 +48,11 @@ const ApexChart = () => {
     xaxis: {
       type: 'datetime'
     },
-    yaxis: [
-      {
-        tooltip: {
-          enabled: true
-        }
-      },
-      {
-        seriesName: 'Line',
-        opposite: true,
-        axisTicks: {
-          show: true
-        },
-        axisBorder: {
-          show: true,
-          color: '#008FFB'
-        },
-        labels: {
-          style: {
-            colors: '#008FFB'
-          }
-        },
-        title: {
-          text: 'Line Series',
-          style: {
-            color: '#008FFB'
-          }
-        }
+    yaxis: {
+      tooltip: {
+        enabled: true
       }
-    ]
+    }
   });
 
   return (
