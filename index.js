@@ -16,26 +16,27 @@ const candlestickData = [
   // Add more data points as needed
 ];
 
-const rsiData = [
-  { x: new Date('2023-06-01'), y: 70 },
-  { x: new Date('2023-06-02'), y: 65 },
-  { x: new Date('2023-06-03'), y: 60 },
-  { x: new Date('2023-06-04'), y: 55 },
-  { x: new Date('2023-06-05'), y: 50 },
+const lineData = [
+  { x: new Date('2023-06-01'), y: 20 },
+  { x: new Date('2023-06-02'), y: 25 },
+  { x: new Date('2023-06-03'), y: 30 },
+  { x: new Date('2023-06-04'), y: 35 },
+  { x: new Date('2023-06-05'), y: 40 },
   { x: new Date('2023-06-06'), y: 45 },
-  { x: new Date('2023-06-07'), y: 40 },
-  { x: new Date('2023-06-08'), y: 35 },
-  { x: new Date('2023-06-09'), y: 30 },
-  { x: new Date('2023-06-10'), y: 25 },
+  { x: new Date('2023-06-07'), y: 50 },
+  { x: new Date('2023-06-08'), y: 55 },
+  { x: new Date('2023-06-09'), y: 60 },
+  { x: new Date('2023-06-10'), y: 65 },
   // Add more data points as needed
 ];
 
 const ApexChart = () => {
-  const [seriesCandlestick] = useState([{
-    data: candlestickData
-  }]);
+  const [series] = useState([
+    { name: 'Candlestick', data: candlestickData },
+    { name: 'Line', data: lineData }
+  ]);
 
-  const [optionsCandlestick] = useState({
+  const [options] = useState({
     chart: {
       type: 'candlestick',
       height: 350,
@@ -43,54 +44,27 @@ const ApexChart = () => {
       group: 'social'
     },
     title: {
-      text: 'Candlestick Chart',
+      text: 'Candlestick Chart with Line Data',
       align: 'left'
     },
     xaxis: {
       type: 'datetime'
     },
     yaxis: {
+      opposite: true,
       tooltip: {
         enabled: true
       }
     }
   });
 
-  const [seriesRSI] = useState([{
-    data: rsiData
-  }]);
-
-  const [optionsRSI] = useState({
-    chart: {
-      id: 'rsi',
-      group: 'social',
-      type: 'line',
-      height: 160
-    },
-    title: {
-      text: 'RSI Chart',
-      align: 'left'
-    },
-    xaxis: {
-      type: 'datetime'
-    },
-    yaxis: {
-      min: 0,
-      max: 100
-    }
-  });
-
   return (
     <div>
       <div id="wrapper">
-        <div id="chart-candlestick">
-          <ReactApexChart options={optionsCandlestick} series={seriesCandlestick} type="candlestick" height={350} />
-        </div>
-        <div id="chart-rsi">
-          <ReactApexChart options={optionsRSI} series={seriesRSI} type="line" height={160} />
+        <div id="chart">
+          <ReactApexChart options={options} series={series} type="line" height={350} />
         </div>
       </div>
-      <div id="html-dist"></div>
     </div>
   );
 }
