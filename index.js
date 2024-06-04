@@ -2,49 +2,40 @@ import React, { useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import ReactDOM from 'react-dom';
 
-// Dummy function to generate time series data
-const generateDayWiseTimeSeries = (baseval, count, yrange) => {
-  let i = 0;
-  let series = [];
-  while (i < count) {
-    const x = baseval;
-    const y =
-      Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
+const candlestickData = [
+  { x: new Date('2023-06-01'), y: [6629.81, 6650.5, 6623.04, 6633.33] },
+  { x: new Date('2023-06-02'), y: [6632.01, 6643.59, 6620, 6630.11] },
+  { x: new Date('2023-06-03'), y: [6630.71, 6648.95, 6623.34, 6635.65] },
+  { x: new Date('2023-06-04'), y: [6635.65, 6651, 6629.67, 6638.24] },
+  { x: new Date('2023-06-05'), y: [6638.24, 6640, 6620, 6624.47] },
+  { x: new Date('2023-06-06'), y: [6624.53, 6636.03, 6621.68, 6624.31] },
+  { x: new Date('2023-06-07'), y: [6624.61, 6632.2, 6617, 6626.02] },
+  { x: new Date('2023-06-08'), y: [6627, 6627.62, 6584.22, 6603.02] },
+  { x: new Date('2023-06-09'), y: [6605, 6608.03, 6598.95, 6604.01] },
+  { x: new Date('2023-06-10'), y: [6604.5, 6614.4, 6602.26, 6608.02] },
+  // Add more data points as needed
+];
 
-    series.push({ x, y });
-    baseval += 86400000; // Increment by one day
-    i++;
-  }
-  return series;
-};
-
-// Dummy function to generate candlestick data
-const generateCandlestickData = (baseval, count, yrange) => {
-  let i = 0;
-  let series = [];
-  while (i < count) {
-    const open = Math.floor(Math.random() * (yrange.max - yrange.min + 1)) + yrange.min;
-    const high = open + Math.floor(Math.random() * 10);
-    const low = open - Math.floor(Math.random() * 10);
-    const close = Math.floor(Math.random() * (high - low + 1)) + low;
-
-    series.push({
-      x: new Date(baseval),
-      y: [open, high, low, close]
-    });
-    baseval += 86400000; // Increment by one day
-    i++;
-  }
-  return series;
-};
+const rsiData = [
+  { x: new Date('2023-06-01'), y: 70 },
+  { x: new Date('2023-06-02'), y: 65 },
+  { x: new Date('2023-06-03'), y: 60 },
+  { x: new Date('2023-06-04'), y: 55 },
+  { x: new Date('2023-06-05'), y: 50 },
+  { x: new Date('2023-06-06'), y: 45 },
+  { x: new Date('2023-06-07'), y: 40 },
+  { x: new Date('2023-06-08'), y: 35 },
+  { x: new Date('2023-06-09'), y: 30 },
+  { x: new Date('2023-06-10'), y: 25 },
+  // Add more data points as needed
+];
 
 const ApexChart = () => {
-  const baseTime = new Date('11 Feb 2017').getTime();
-  const [seriesCandlestick, setSeriesCandlestick] = useState([{
-    data: generateCandlestickData(baseTime, 20, { min: 6600, max: 6800 })
+  const [seriesCandlestick] = useState([{
+    data: candlestickData
   }]);
 
-  const [optionsCandlestick, setOptionsCandlestick] = useState({
+  const [optionsCandlestick] = useState({
     chart: {
       type: 'candlestick',
       height: 350,
@@ -52,7 +43,7 @@ const ApexChart = () => {
       group: 'social'
     },
     title: {
-      text: 'CandleStick Chart',
+      text: 'Candlestick Chart',
       align: 'left'
     },
     xaxis: {
@@ -65,32 +56,28 @@ const ApexChart = () => {
     }
   });
 
-  const [seriesLine, setSeriesLine] = useState([{
-    data: generateDayWiseTimeSeries(baseTime, 20, { min: 10, max: 60 })
+  const [seriesRSI] = useState([{
+    data: rsiData
   }]);
 
-  const [optionsLine, setOptionsLine] = useState({
+  const [optionsRSI] = useState({
     chart: {
-      id: 'fb',
+      id: 'rsi',
       group: 'social',
       type: 'line',
       height: 160
     },
-    colors: ['#008FFB']
-  });
-
-  const [seriesArea, setSeriesArea] = useState([{
-    data: generateDayWiseTimeSeries(baseTime, 20, { min: 10, max: 60 })
-  }]);
-
-  const [optionsArea, setOptionsArea] = useState({
-    chart: {
-      id: 'yt',
-      group: 'social',
-      type: 'area',
-      height: 160
+    title: {
+      text: 'RSI Chart',
+      align: 'left'
     },
-    colors: ['#00E396']
+    xaxis: {
+      type: 'datetime'
+    },
+    yaxis: {
+      min: 0,
+      max: 100
+    }
   });
 
   return (
@@ -99,11 +86,8 @@ const ApexChart = () => {
         <div id="chart-candlestick">
           <ReactApexChart options={optionsCandlestick} series={seriesCandlestick} type="candlestick" height={350} />
         </div>
-        <div id="chart-line">
-          <ReactApexChart options={optionsLine} series={seriesLine} type="line" height={160} />
-        </div>
-        <div id="chart-area">
-          <ReactApexChart options={optionsArea} series={seriesArea} type="area" height={160} />
+        <div id="chart-rsi">
+          <ReactApexChart options={optionsRSI} series={seriesRSI} type="line" height={160} />
         </div>
       </div>
       <div id="html-dist"></div>
