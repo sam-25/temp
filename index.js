@@ -16,33 +16,25 @@ const candlestickData = [
   // Add more data points as needed
 ];
 
-const lineData = [
-  { x: new Date('2023-06-01'), y: 20 },
-  { x: new Date('2023-06-02'), y: 25 },
-  { x: new Date('2023-06-03'), y: 30 },
-  { x: new Date('2023-06-04'), y: 35 },
-  { x: new Date('2023-06-05'), y: 40 },
-  { x: new Date('2023-06-06'), y: 45 },
-  { x: new Date('2023-06-07'), y: 50 },
-  { x: new Date('2023-06-08'), y: 55 },
-  { x: new Date('2023-06-09'), y: 60 },
-  { x: new Date('2023-06-10'), y: 65 },
-  // Add more data points as needed
-];
+// Calculate the mean of open and close values for each timestamp
+const meanLineData = candlestickData.map(dataPoint => ({
+  x: dataPoint.x,
+  y: (dataPoint.y[0] + dataPoint.y[1]) / 2
+}));
 
 const ApexChart = () => {
   const [series] = useState([
     { name: 'Candlestick', data: candlestickData },
-    { name: 'Line', data: lineData }
+    { name: 'Mean Line', data: meanLineData }
   ]);
 
   const [options] = useState({
     chart: {
-      type: 'line',
+      type: 'candlestick',
       height: 350
     },
     title: {
-      text: 'Candlestick Chart with Line Data',
+      text: 'Candlestick Chart with Mean Line',
       align: 'left'
     },
     xaxis: {
@@ -59,7 +51,7 @@ const ApexChart = () => {
     <div>
       <div id="wrapper">
         <div id="chart">
-          <ReactApexChart options={options} series={series} type="line" height={350} />
+          <ReactApexChart options={options} series={series} type="candlestick" height={350} />
         </div>
       </div>
     </div>
