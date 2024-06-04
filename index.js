@@ -50,12 +50,35 @@ const ApexChart = () => {
     xaxis: {
       type: 'datetime'
     },
-    yaxis: {
-      opposite: true,
-      tooltip: {
-        enabled: true
+    yaxis: [
+      {
+        tooltip: {
+          enabled: true
+        }
+      },
+      {
+        seriesName: 'Line',
+        opposite: true,
+        axisTicks: {
+          show: true
+        },
+        axisBorder: {
+          show: true,
+          color: '#008FFB'
+        },
+        labels: {
+          style: {
+            colors: '#008FFB'
+          }
+        },
+        title: {
+          text: 'Line Series',
+          style: {
+            color: '#008FFB'
+          }
+        }
       }
-    }
+    ]
   });
 
   return (
