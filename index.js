@@ -25,7 +25,7 @@ const meanLineData = candlestickData.map(dataPoint => ({
 const ApexChart = () => {
   const [series] = useState([
     { name: 'Candlestick', data: candlestickData },
-    { name: 'Mean Line', data: meanLineData }
+    { name: 'Mean Line', data: meanLineData, type: 'line' }
   ]);
 
   const [options] = useState({
