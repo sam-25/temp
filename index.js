@@ -38,18 +38,16 @@ const SyncedCharts = () => {
     }
   });
 
-  const globalOptions = {
-    chart: {
-      height: 160,
-    },
-    dataLabels: {
-      enabled: false
-    }
-  };
-
   useEffect(() => {
-    window.Apex = globalOptions;
-  }, [globalOptions]);
+    window.Apex = {
+      chart: {
+        height: 160,
+      },
+      dataLabels: {
+        enabled: false
+      }
+    };
+  }, []);
 
   return (
     <div id="synced-charts">
