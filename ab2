@@ -1,0 +1,96 @@
+import React from 'react';
+
+const AboutPage = () => {
+  return (
+    <div className="bg-gray-100 py-20 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">Welcome to Trade Vision</h1>
+          <p className="text-xl text-gray-700 mb-8">Your go-to platform for insightful stock suggestions and trading guidance.</p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="bg-white shadow-lg rounded-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
+            <p className="text-gray-700 mb-6">
+              Our mission is to empower individuals with the knowledge and tools needed to make informed trading decisions. We aim to demystify the complexities of the stock market, providing clear, actionable insights that you can trust.
+            </p>
+          </div>
+
+          <div className="bg-white shadow-lg rounded-lg p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">What We Offer</h2>
+            <ul className="text-gray-700 mb-6 space-y-4">
+              <li>
+                <h3 className="font-bold">Stock Suggestions</h3>
+                <p>Receive personalized buy and sell signals based on thorough analysis and market trends.</p>
+              </li>
+              <li>
+                <h3 className="font-bold">Indicators and Tools</h3>
+                <p>Gain access to a suite of indicators such as RSI, MACD, and more, to help you understand market conditions and make strategic decisions.</p>
+              </li>
+              <li>
+                <h3 className="font-bold">Educational Resources</h3>
+                <p>Learn about trading strategies, market analysis, and the essentials of buying and selling stocks through our comprehensive guides and tutorials.</p>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="bg-white shadow-lg rounded-lg p-8 mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Why Choose Trade Vision?</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">User-Friendly Interface</h3>
+              <p className="text-gray-700">Our platform is designed to be intuitive and easy to navigate, making it suitable for traders of all experience levels.</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Reliable Data</h3>
+              <p className="text-gray-700">We use advanced algorithms and real-time data to provide you with the most accurate and up-to-date information.</p>
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-gray-900 mb-2">Community Support</h3>
+              <p className="text-gray-700">Join a community of like-minded traders, share insights, and learn from each other's experiences.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white shadow-lg rounded-lg p-8 mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Getting Started</h2>
+          <ol className="text-gray-700 space-y-4">
+            <li>
+              <h3 className="font-bold">Create an Account</h3>
+              <p>Sign up for free and customize your profile to receive personalized stock suggestions.</p>
+            </li>
+            <li>
+              <h3 className="font-bold">Explore Our Tools</h3>
+              <p>Dive into our range of indicators and tools to start analyzing the market.</p>
+            </li>
+            <li>
+              <h3 className="font-bold">Follow Signals</h3>
+              <p>Act on our buy and sell signals to make informed trading decisions.</p>
+            </li>
+            <li>
+              <h3 className="font-bold">Learn and Grow</h3>
+              <p>Utilize our educational resources to deepen your understanding of trading and improve your strategies.</p>
+            </li>
+          </ol>
+        </div>
+
+        <div className="text-center mt-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Contact Us</h2>
+          <p className="text-gray-700 mb-4">
+            Have questions or need support? Our dedicated team is here to assist you.
+          </p>
+          <a
+            href="mailto:support@tradevision.com"
+            className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-3 px-6 rounded-lg"
+          >
+            support@tradevision.com
+          </a>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AboutPage;
