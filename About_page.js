@@ -2,7 +2,7 @@ import React from 'react';
 
 const AboutPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-800 to-purple-900 text-white flex flex-col items-center justify-center p-8">
+    <div className="min-h-screen bg-gradient-to-r from-blue-900 to-blue-600 text-white flex flex-col items-center justify-center p-8">
       <div className="text-center mb-10">
         <h1 className="text-5xl font-extrabold mb-4">Welcome to Trade Vision</h1>
         <p className="text-2xl font-light mb-6">
@@ -36,7 +36,7 @@ const AboutPage = () => {
             Join us at Trade Vision and start your journey towards successful trading today!
           </p>
           <div className="text-center">
-            <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-full text-lg font-semibold shadow-md transition duration-300">
+            <button className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full text-lg font-semibold shadow-md transition duration-300">
               Get Started
             </button>
           </div>
