@@ -2,36 +2,75 @@ import React, { useEffect, useRef, useState } from 'react';
 
 const ChartComponent = ({ data }) => {
   const chartContainerRef = useRef(null);
-  const [chartWidth, setChartWidth] = useState(0);
+  const [chart, setChart] = useState(null);
 
-  // Function to update the chart width
-  const updateChartWidth = () => {
+  // Function to create the chart
+  const createChart = () => {
     if (chartContainerRef.current) {
-      setChartWidth(chartContainerRef.current.clientWidth);
+      // Assume createChart is a function that initializes the chart
+      const newChart = createChartInstance(chartContainerRef.current);
+      setChart(newChart);
     }
   };
 
-  // Effect to set initial chart width and add event listener for resize
-  useEffect(() => {
-    updateChartWidth();
+  // Function to update chart size
+  const updateChartSize = () => {
+    if (chart && chartContainerRef.current) {
+      const width = chartContainerRef.current.clientWidth;
+      const height = chartContainerRef.current.clientHeight;
+      chart.resize(width, height);
+    }
+  };
 
-    window.addEventListener('resize', updateChartWidth);
-    return () => window.removeEventListener('resize', updateChartWidth);
+  // Initialize chart and set up resize observer
+  useEffect(() => {
+    createChart();
+
+    // Observe resize events on the chart container
+    const resizeObserver = new ResizeObserver(() => {
+      updateChartSize();
+    });
+
+    if (chartContainerRef.current) {
+      resizeObserver.observe(chartContainerRef.current);
+    }
+
+    return () => {
+      if (chartContainerRef.current) {
+        resizeObserver.unobserve(chartContainerRef.current);
+      }
+    };
   }, []);
 
-  // Effect to update chart dimensions when data changes
+  // Update chart data and size when data changes
   useEffect(() => {
-    if (data) {
-      updateChartWidth();
-      // Add your code here to plot/update the chart using chartWidth and data
+    if (chart && data) {
+      // Update the chart with new data
+      chart.updateData(data);
+      updateChartSize();
     }
-  }, [data, chartWidth]);
+  }, [data, chart]);
 
   return (
     <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }}>
       {/* Your chart rendering code here */}
     </div>
   );
+};
+
+// Mock function to create a chart instance
+const createChartInstance = (container) => {
+  // Implement your chart creation logic here
+  return {
+    resize: (width, height) => {
+      console.log(`Chart resized to: ${width}x${height}`);
+      // Implement your resize logic here
+    },
+    updateData: (data) => {
+      console.log('Chart data updated:', data);
+      // Implement your data update logic here
+    }
+  };
 };
 
 export default ChartComponent;
