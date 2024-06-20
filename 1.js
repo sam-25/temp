@@ -1,76 +1,77 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React from 'react';
+import { Line } from 'react-chartjs-2';
 
-const ChartComponent = ({ data }) => {
-  const chartContainerRef = useRef(null);
-  const [chart, setChart] = useState(null);
-
-  // Function to create the chart
-  const createChart = () => {
-    if (chartContainerRef.current) {
-      // Assume createChart is a function that initializes the chart
-      const newChart = createChartInstance(chartContainerRef.current);
-      setChart(newChart);
-    }
+const App = () => {
+  const indicatorColors = {
+    RSI: '#FF0000', // Red
+    MACD: '#00FF00', // Green
+    OBV: '#0000FF', // Blue
+    // Add other indicators and their colors here
   };
 
-  // Function to update chart size
-  const updateChartSize = () => {
-    if (chart && chartContainerRef.current) {
-      const width = chartContainerRef.current.clientWidth;
-      const height = chartContainerRef.current.clientHeight;
-      chart.resize(width, height);
-    }
+  // Sample data for demonstration
+  const data = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
+    RSI: [30, 45, 50, 60, 55, 40, 30],
+    MACD: [1, 2, 1, 2, 1, 2, 1],
+    OBV: [1000, 1500, 1100, 1300, 1200, 1400, 1250],
   };
 
-  // Initialize chart and set up resize observer
-  useEffect(() => {
-    createChart();
+  const chartData = {
+    labels: data.labels,
+    datasets: [
+      {
+        label: 'RSI',
+        data: data.RSI,
+        borderColor: indicatorColors.RSI,
+        fill: false,
+      },
+      {
+        label: 'MACD',
+        data: data.MACD,
+        borderColor: indicatorColors.MACD,
+        fill: false,
+      },
+      {
+        label: 'OBV',
+        data: data.OBV,
+        borderColor: indicatorColors.OBV,
+        fill: false,
+      },
+      // Add other indicators here
+    ],
+  };
 
-    // Observe resize events on the chart container
-    const resizeObserver = new ResizeObserver(() => {
-      updateChartSize();
-    });
+  const options = {
+    responsive: true,
+    scales: {
+      x: {
+        display: true,
+      },
+      y: {
+        display: true,
+      },
+    },
+  };
 
-    if (chartContainerRef.current) {
-      resizeObserver.observe(chartContainerRef.current);
-    }
-
-    return () => {
-      if (chartContainerRef.current) {
-        resizeObserver.unobserve(chartContainerRef.current);
-      }
-    };
-  }, []);
-
-  // Update chart data and size when data changes
-  useEffect(() => {
-    if (chart && data) {
-      // Update the chart with new data
-      chart.updateData(data);
-      updateChartSize();
-    }
-  }, [data, chart]);
+  const Legend = ({ colors }) => (
+    <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+      {Object.keys(colors).map(indicator => (
+        <div key={indicator} style={{ display: 'flex', alignItems: 'center', marginRight: '20px' }}>
+          <div style={{ width: '20px', height: '20px', backgroundColor: colors[indicator], marginRight: '5px' }}></div>
+          <span>{indicator}</span>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <div ref={chartContainerRef} style={{ width: '100%', height: '100%' }}>
-      {/* Your chart rendering code here */}
+    <div className="App">
+      <h1>Indicator Chart</h1>
+      <Line data={chartData} options={options} />
+      <Legend colors={indicatorColors} />
     </div>
   );
 };
 
-// Mock function to create a chart instance
-const createChartInstance = (container) => {
-  // Implement your chart creation logic here
-  return {
-    resize: (width, height) => {
-      console.log(`Chart resized to: ${width}x${height}`);
-      // Implement your resize logic here
-    },
-    updateData: (data) => {
-      console.log('Chart data updated:', data);
-      // Implement your data update logic here
-    }
-  };
-};
-
-export default ChartComponent;
+export default App;
